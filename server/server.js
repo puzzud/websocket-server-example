@@ -26,6 +26,9 @@ WS.Server = function(server)
 WS.Server.prototype.onconnection = function(ws)
 {
   var wsSocket = new WS.Socket(ws, this);
+  
+  var pkg = protocol.createMessagePackage("Client " + wsSocket.clientId + " connected.");
+  wsServer.broadcastPackage(pkg, wsSocket);
 };
 
 WS.Server.prototype.sendPackage = function(ws, pkg)
@@ -33,17 +36,22 @@ WS.Server.prototype.sendPackage = function(ws, pkg)
   ws.send(JSON.stringify(pkg));
 };
 
-WS.Server.prototype.broadcastPackage = function(pkg)
+WS.Server.prototype.broadcastPackage = function(pkg, allBut)
 {
+  allBut = (allBut === undefined) ? null : allBut.ws;
+  
   var packageString = JSON.stringify(pkg);
   
   this.wss.clients.forEach
   (
     function each(client)
     {
-      if(client.readyState === WebSocket.OPEN)
+      if(client !== allBut)
       {
-        client.send(packageString);
+        if(client.readyState === WebSocket.OPEN)
+        {
+          client.send(packageString);
+        }
       }
     }
   );
@@ -101,7 +109,7 @@ WS.Socket = function(ws, wsServer)
   
   wsServer.connectedClients.push(this);
   
-  var pkg = protocol.createMessagePackage("Client connected. Gave ID " + this.clientId + ".");
+  var pkg = protocol.createMessagePackage("Connected as client " + this.clientId + ".");
   wsServer.sendPackage(ws, pkg);
 };
 
@@ -113,14 +121,14 @@ WS.Socket.prototype.onmessage = function(data)
 
 WS.Socket.prototype.onclose = function()
 {
-  var pkg = protocol.createMessagePackage("Client " + this.clientId + " disconnected.");
-  this.wsServer.broadcastPackage(pkg);
-  
   var wsServer = this.wsServer;
   var index = wsServer.connectedClients.indexOf(this);
   if(index > -1)
   {
     wsServer.connectedClients = wsServer.connectedClients.splice(index, 1);
+    
+    var pkg = protocol.createMessagePackage("Client " + this.clientId + " disconnected.");
+    wsServer.broadcastPackage(pkg, this);
   }
 };
 
