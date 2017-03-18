@@ -11,67 +11,32 @@ var http = require("http");
 var server = http.Server(app);
 var websocket = require("ws");
 
-var ConnectedClients = [];
-var ClientIdCounter = 0;
+var WS = {};
 
-var wsServer = new websocket.Server({server});
+WS.Server = function(server)
+{
+  this.connectedClients = [];
+  this.clientIdCounter = 0;
 
-wsServer.on
-(
-  "connection",
-  function(ws)
-  {
-    //var location = url.parse(ws.upgradeReq.url, true);
-    
-    ws.on
-    (
-      "message",
-      function(data)
-      {
-        var pkg = JSON.parse(data);
-        var type = pkg["TYPE"];
-        
-        if(type === protocol.PackageType.MESSAGE)
-        {
-          wsServer.processMessagePackage(pkg);
-        }
-        else if(type === protocol.PackageType.REQUEST)
-        {
-          wsServer.processRequestPackage(pkg);
-        }
-        else
-        {
-          wsServer.sendPackage(ws, protocol.createErrorPackage("unknown message type"));
-        }
-      }
-    );
-    
-    ws.on
-    (
-      "close",
-      function()
-      {
-        var pkg = protocol.createMessagePackage("Someone disconnected.");
-        wsServer.broadcastPackage(pkg);
-        //console.log("Client " + ws.client.id + " disconnected.");
-      }
-    );
-    
-    var pkg = protocol.createMessagePackage("Client connected.");
-    wsServer.sendPackage(ws, pkg);
-  }
-);
+  this.wss = new websocket.Server({server});
+  this.wss.on("connection", this.onconnection.bind(this));
+};
 
-wsServer.sendPackage = function(ws, pkg)
+WS.Server.prototype.onconnection = function(ws)
+{
+  var wsSocket = new WS.Socket(ws, this);
+};
+
+WS.Server.prototype.sendPackage = function(ws, pkg)
 {
   ws.send(JSON.stringify(pkg));
 };
 
-wsServer.broadcastPackage = function(pkg)
+WS.Server.prototype.broadcastPackage = function(pkg)
 {
   var packageString = JSON.stringify(pkg);
   
-  wsServer.clients.forEach
+  this.wss.clients.forEach
   (
     function each(client)
     {
@@ -83,12 +48,30 @@ wsServer.broadcastPackage = function(pkg)
   );
 };
 
-wsServer.processMessagePackage = function(pkg)
+WS.Server.prototype.processPackage = function(pkg, wsSocket)
 {
-  wsServer.broadcastPackage(protocol.createErrorPackage(pkg["MESSAGE"]));
+  var type = pkg["TYPE"];
+  
+  if(type === protocol.PackageType.MESSAGE)
+  {
+    wsServer.processMessagePackage(pkg, wsSocket);
+  }
+  else if(type === protocol.PackageType.REQUEST)
+  {
+    wsServer.processRequestPackage(pkg, wsSocket);
+  }
+  else
+  {
+    wsServer.sendPackage(wsSocket.ws, protocol.createErrorPackage("unknown message type"));
+  }
 };
 
-wsServer.processRequestPackage = function(pkg)
+WS.Server.prototype.processMessagePackage = function(pkg, wsSocket)
+{
+  this.broadcastPackage(protocol.createErrorPackage(pkg["MESSAGE"]));
+};
+
+WS.Server.prototype.processRequestPackage = function(pkg, wsSocket)
 {
   var avatarName = "";
   var avatarImageSource = "";
@@ -101,8 +84,46 @@ wsServer.processRequestPackage = function(pkg)
   }
         
   var pkg = protocol.createUpdatePackage(avatarName, avatarImageSource);
-  wsServer.broadcastPackage(pkg);
+  this.broadcastPackage(pkg);
 };
+
+WS.Socket = function(ws, wsServer)
+{
+  this.ws = ws;
+  this.wsServer = wsServer;
+  this.clientId = ++wsServer.clientIdCounter;
+  
+  //var location = url.parse(ws.upgradeReq.url, true);
+  
+  ws.on("message", this.onmessage.bind(this));
+  ws.on("close", this.onclose.bind(this));
+  
+  wsServer.connectedClients.push(this);
+  
+  var pkg = protocol.createMessagePackage("Client connected. Gave ID " + this.clientId + ".");
+  wsServer.sendPackage(ws, pkg);
+};
+
+WS.Socket.prototype.onmessage = function(data)
+{
+  var pkg = JSON.parse(data);
+  this.wsServer.processPackage(pkg, this);
+};
+
+WS.Socket.prototype.onclose = function()
+{
+  var pkg = protocol.createMessagePackage("Client " + this.clientId + " disconnected.");
+  this.wsServer.broadcastPackage(pkg);
+  
+  var wsServer = this.wsServer;
+  var index = wsServer.connectedClients.indexOf(this);
+  if(index > -1)
+  {
+    wsServer.connectedClients = wsServer.connectedClients.splice(index, 1);
+  }
+};
+
+var wsServer = new WS.Server(server);
 
 // Set up static website.
 var commonPath = path.resolve(__dirname + "/../common");
