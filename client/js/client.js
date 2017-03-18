@@ -2,7 +2,7 @@ var WS = {};
 
 WS.Client = function()
 {
-  var address = "localhost:8080";
+  var address = "";//"localhost:8080";
   address = window.location.href;
   address = address.replace("https", "ws");
   address = address.replace("http", "ws");
@@ -39,11 +39,11 @@ WS.Client.prototype.onclose = function()
 
 WS.Client.prototype.processPackage = function(pkg)
 {
-  var type = pkg["TYPE"];
+  var type = pkg.TYPE;
   
   if(type === protocol.PackageType.MESSAGE)
   {
-    var message = pkg["MESSAGE"];
+    var message = pkg.MESSAGE;
     this.addLogMessage("Recieved message: " + message);
     
     return;
@@ -67,10 +67,10 @@ WS.Client.prototype.request = function()
 
 WS.Client.prototype.processUpdatePackage = function(pkg)
 {
-  var avatarName = pkg["AVATAR_NAME"];
+  var avatarName = pkg.AVATAR_NAME;
   
   var avatarImageElement = document.getElementById("Avatar Image");
-  avatarImageElement.src = pkg["AVATAR_IMG_SRC"];
+  avatarImageElement.src = pkg.AVATAR_IMG_SRC;
   
   var avatarNameElement = document.getElementById("Avatar Name");
   avatarNameElement.innerHTML = avatarName;
