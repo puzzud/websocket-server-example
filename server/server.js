@@ -9,7 +9,6 @@ var express = require("express");
 var app = express();
 var http = require("http");
 var server = http.Server(app);
-var websocket = require("ws");
 
 var WS = {};
 
@@ -18,7 +17,9 @@ WS.Server = function(server)
   this.connectedClients = [];
   this.clientIdCounter = 0;
 
-  this.wss = new websocket.Server({server});
+  WebSocket = require("ws"); // NOTE: Purposely global.
+  
+  this.wss = new WebSocket.Server({server});
   this.wss.on("connection", this.onconnection.bind(this));
 };
 
@@ -40,7 +41,7 @@ WS.Server.prototype.broadcastPackage = function(pkg)
   (
     function each(client)
     {
-      if(client.readyState === websocket.OPEN)
+      if(client.readyState === WebSocket.OPEN)
       {
         client.send(packageString);
       }
@@ -50,7 +51,7 @@ WS.Server.prototype.broadcastPackage = function(pkg)
 
 WS.Server.prototype.processPackage = function(pkg, wsSocket)
 {
-  var type = pkg["TYPE"];
+  var type = pkg.TYPE;
   
   if(type === protocol.PackageType.MESSAGE)
   {
@@ -76,7 +77,7 @@ WS.Server.prototype.processRequestPackage = function(pkg, wsSocket)
   var avatarName = "";
   var avatarImageSource = "";
   
-  var infoId = pkg["INFO_ID"]; 
+  var infoId = pkg.INFO_ID; 
   if(infoId === "jinx")
   {
     avatarImageSource = "http://orig00.deviantart.net/1eaf/f/2013/284/0/7/jinx___splat_7_by_etruzion-d6q1jes.png";
