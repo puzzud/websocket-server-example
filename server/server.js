@@ -69,7 +69,7 @@ WS.Server.prototype.processPackage = function(pkg, wsSocket)
 
 WS.Server.prototype.processMessagePackage = function(pkg, wsSocket)
 {
-  this.broadcastPackage(protocol.createErrorPackage(pkg["MESSAGE"]));
+  this.broadcastPackage(protocol.createErrorPackage(pkg.MESSAGE));
 };
 
 WS.Server.prototype.processRequestPackage = function(pkg, wsSocket)

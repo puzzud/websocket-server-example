@@ -16,22 +16,22 @@
     
     exports.createMessagePackage = function(message)
     {
-      return {"TYPE": exports.PackageType.MESSAGE, "MESSAGE": message};
+      return {TYPE: exports.PackageType.MESSAGE, MESSAGE: message};
     };
     
     exports.createErrorPackage = function(detail)
     {
-      return {"TYPE": exports.PackageType.ERROR, "DETAIL": detail};
+      return {TYPE: exports.PackageType.ERROR, DETAIL: detail};
     };
     
     exports.createRequestPackage = function(infoId)
     {
-      return {"TYPE": exports.PackageType.REQUEST, "INFO_ID": infoId};
+      return {TYPE: exports.PackageType.REQUEST, INFO_ID: infoId};
     };
     
     exports.createUpdatePackage = function(avatarName, avatarImageSource)
     {
-      return {"TYPE": exports.PackageType.UPDATE, "AVATAR_NAME": avatarName, "AVATAR_IMG_SRC": avatarImageSource};
+      return {TYPE: exports.PackageType.UPDATE, AVATAR_NAME: avatarName, "AVATAR_IMG_SRC": avatarImageSource};
     };
   }
 )(typeof exports === "undefined" ? this["protocol"] = {}: exports);

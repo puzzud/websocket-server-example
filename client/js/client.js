@@ -22,19 +22,17 @@ WS.Client = function()
 
 WS.Client.prototype.onload = function()
 {
-  console.log("WS onload.");
+  console.log("WS.Client::onload.");
 };
 
 WS.Client.prototype.onmessage = function(event)
 {
   this.processPackage(JSON.parse(event.data));
-  
-  console.log("WS onmessage.");
 };
     
 WS.Client.prototype.onclose = function()
 {
-  console.log("WS onclose.");
+  console.log("WS.Client::onclose.");
 };
 
 WS.Client.prototype.processPackage = function(pkg)
@@ -43,10 +41,7 @@ WS.Client.prototype.processPackage = function(pkg)
   
   if(type === protocol.PackageType.MESSAGE)
   {
-    var message = pkg.MESSAGE;
-    this.addLogMessage("Recieved message: " + message);
-    
-    return;
+    return this.processMessagePackage(pkg);
   }
   
   if(type === protocol.PackageType.UPDATE)
@@ -55,14 +50,24 @@ WS.Client.prototype.processPackage = function(pkg)
   }
 };
 
+WS.Client.prototype.sendPackage = function(pkg)
+{
+  this.ws.send(JSON.stringify(pkg));
+};
+
 WS.Client.prototype.request = function()
 {
   var infoId = "jinx";
   
   var pkg = protocol.createRequestPackage(infoId);
-  this.ws.send(JSON.stringify(pkg));
+  this.sendPackage(pkg);
   
   this.addLogMessage("Requesting: " + infoId);
+};
+
+WS.Client.prototype.processMessagePackage = function(pkg)
+{
+  this.addLogMessage(pkg.MESSAGE);
 };
 
 WS.Client.prototype.processUpdatePackage = function(pkg)
