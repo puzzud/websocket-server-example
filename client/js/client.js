@@ -72,10 +72,10 @@ WS.Client.prototype.processMessagePackage = function(pkg)
 
 WS.Client.prototype.processUpdatePackage = function(pkg)
 {
-  var avatarName = pkg.AVATAR_NAME;
+  var avatarName = pkg.CONTENT.AVATAR_NAME;
   
   var avatarImageElement = document.getElementById("Avatar Image");
-  avatarImageElement.src = pkg.AVATAR_IMG_SRC;
+  avatarImageElement.src = pkg.CONTENT.AVATAR_IMG_SRC;
   
   var avatarNameElement = document.getElementById("Avatar Name");
   avatarNameElement.innerHTML = avatarName;

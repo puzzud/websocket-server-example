@@ -91,8 +91,14 @@ WS.Server.prototype.processRequestPackage = function(pkg, wsSocket)
     avatarImageSource = "http://orig00.deviantart.net/1eaf/f/2013/284/0/7/jinx___splat_7_by_etruzion-d6q1jes.png";
     avatarName = "Jinx";
   }
-        
-  var pkg = protocol.createUpdatePackage(avatarName, avatarImageSource);
+  
+  var content =
+  {
+    AVATAR_NAME: avatarName,
+    AVATAR_IMG_SRC: avatarImageSource
+  };
+  
+  var pkg = protocol.createUpdatePackage(content);
   this.broadcastPackage(pkg);
 };
 

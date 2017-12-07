@@ -29,9 +29,13 @@
       return {TYPE: exports.PackageType.REQUEST, INFO_ID: infoId};
     };
     
-    exports.createUpdatePackage = function(avatarName, avatarImageSource)
+    exports.createUpdatePackage = function(content)
     {
-      return {TYPE: exports.PackageType.UPDATE, AVATAR_NAME: avatarName, "AVATAR_IMG_SRC": avatarImageSource};
+      return {TYPE: exports.PackageType.UPDATE, CONTENT: content};
     };
   }
 )(typeof exports === "undefined" ? this["protocol"] = {}: exports);
+
+{
+  
+}
