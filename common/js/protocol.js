@@ -16,22 +16,22 @@
     
     exports.createMessagePackage = function(message)
     {
-      return {TYPE: exports.PackageType.MESSAGE, MESSAGE: message};
+      return {type: exports.PackageType.MESSAGE, message: message};
     };
     
     exports.createErrorPackage = function(detail)
     {
-      return {TYPE: exports.PackageType.ERROR, DETAIL: detail};
+      return {type: exports.PackageType.ERROR, detail: detail};
     };
     
-    exports.createRequestPackage = function(infoId)
+    exports.createRequestPackage = function(content)
     {
-      return {TYPE: exports.PackageType.REQUEST, INFO_ID: infoId};
+      return {type: exports.PackageType.REQUEST, content: content};
     };
     
     exports.createUpdatePackage = function(content)
     {
-      return {TYPE: exports.PackageType.UPDATE, CONTENT: content};
+      return {type: exports.PackageType.UPDATE, content: content};
     };
   }
 )(typeof exports === "undefined" ? this["protocol"] = {}: exports);

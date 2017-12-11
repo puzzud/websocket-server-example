@@ -59,7 +59,7 @@ WS.Server.prototype.broadcastPackage = function(pkg, allBut)
 
 WS.Server.prototype.processPackage = function(pkg, wsSocket)
 {
-  var type = pkg.TYPE;
+  var type = pkg.type;
   
   if(type === protocol.PackageType.MESSAGE)
   {
@@ -77,7 +77,7 @@ WS.Server.prototype.processPackage = function(pkg, wsSocket)
 
 WS.Server.prototype.processMessagePackage = function(pkg, wsSocket)
 {
-  this.broadcastPackage(protocol.createErrorPackage(pkg.MESSAGE));
+  this.broadcastPackage(protocol.createErrorPackage(pkg.message));
 };
 
 WS.Server.prototype.processRequestPackage = function(pkg, wsSocket)
@@ -85,8 +85,8 @@ WS.Server.prototype.processRequestPackage = function(pkg, wsSocket)
   var avatarName = "";
   var avatarImageSource = "";
   
-  var infoId = pkg.INFO_ID; 
-  if(infoId === "jinx")
+  var content = pkg.content; 
+  if(content === "jinx")
   {
     avatarImageSource = "http://orig00.deviantart.net/1eaf/f/2013/284/0/7/jinx___splat_7_by_etruzion-d6q1jes.png";
     avatarName = "Jinx";
@@ -94,8 +94,8 @@ WS.Server.prototype.processRequestPackage = function(pkg, wsSocket)
   
   var content =
   {
-    AVATAR_NAME: avatarName,
-    AVATAR_IMG_SRC: avatarImageSource
+    avatarName: avatarName,
+    avatarImgSrc: avatarImageSource
   };
   
   var pkg = protocol.createUpdatePackage(content);

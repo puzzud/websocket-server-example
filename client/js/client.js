@@ -37,7 +37,7 @@ WS.Client.prototype.onclose = function()
 
 WS.Client.prototype.processPackage = function(pkg)
 {
-  var type = pkg.TYPE;
+  var type = pkg.type;
   
   if(type === protocol.PackageType.MESSAGE)
   {
@@ -57,25 +57,25 @@ WS.Client.prototype.sendPackage = function(pkg)
 
 WS.Client.prototype.request = function()
 {
-  var infoId = "jinx";
+  var content = "jinx";
   
-  var pkg = protocol.createRequestPackage(infoId);
+  var pkg = protocol.createRequestPackage(content);
   this.sendPackage(pkg);
   
-  this.addLogMessage("Requesting: " + infoId);
+  this.addLogMessage("Requesting: " + content);
 };
 
 WS.Client.prototype.processMessagePackage = function(pkg)
 {
-  this.addLogMessage(pkg.MESSAGE);
+  this.addLogMessage(pkg.message);
 };
 
 WS.Client.prototype.processUpdatePackage = function(pkg)
 {
-  var avatarName = pkg.CONTENT.AVATAR_NAME;
+  var avatarName = pkg.content.avatarName;
   
   var avatarImageElement = document.getElementById("Avatar Image");
-  avatarImageElement.src = pkg.CONTENT.AVATAR_IMG_SRC;
+  avatarImageElement.src = pkg.content.avatarImgSrc;
   
   var avatarNameElement = document.getElementById("Avatar Name");
   avatarNameElement.innerHTML = avatarName;
@@ -94,3 +94,4 @@ WS.Client.prototype.addLogMessage = function(message)
   
   logElement.insertBefore(p, logElement.firstChild);
 };
+
