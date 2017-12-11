@@ -27,20 +27,20 @@ WS.Server.prototype.onconnection = function(ws)
 {
   var wsSocket = new WS.Socket(ws, this);
   
-  var pkg = protocol.createMessagePackage("Client " + wsSocket.clientId + " connected.");
-  wsServer.broadcastPackage(pkg, wsSocket);
+  var package = protocol.createMessagePackage("Client " + wsSocket.clientId + " connected.");
+  wsServer.broadcastPackage(package, wsSocket);
 };
 
-WS.Server.prototype.sendPackage = function(ws, pkg)
+WS.Server.prototype.sendPackage = function(ws, package)
 {
-  ws.send(JSON.stringify(pkg));
+  ws.send(JSON.stringify(package));
 };
 
-WS.Server.prototype.broadcastPackage = function(pkg, allBut)
+WS.Server.prototype.broadcastPackage = function(package, allBut)
 {
   allBut = (allBut === undefined) ? null : allBut.ws;
   
-  var packageString = JSON.stringify(pkg);
+  var packageString = JSON.stringify(package);
   
   this.wss.clients.forEach
   (
@@ -57,17 +57,17 @@ WS.Server.prototype.broadcastPackage = function(pkg, allBut)
   );
 };
 
-WS.Server.prototype.processPackage = function(pkg, wsSocket)
+WS.Server.prototype.processPackage = function(package, wsSocket)
 {
-  var type = pkg.type;
+  var type = package.type;
   
   if(type === protocol.PackageType.MESSAGE)
   {
-    wsServer.processMessagePackage(pkg, wsSocket);
+    wsServer.processMessagePackage(package, wsSocket);
   }
   else if(type === protocol.PackageType.REQUEST)
   {
-    wsServer.processRequestPackage(pkg, wsSocket);
+    wsServer.processRequestPackage(package, wsSocket);
   }
   else
   {
@@ -75,17 +75,17 @@ WS.Server.prototype.processPackage = function(pkg, wsSocket)
   }
 };
 
-WS.Server.prototype.processMessagePackage = function(pkg, wsSocket)
+WS.Server.prototype.processMessagePackage = function(package, wsSocket)
 {
-  this.broadcastPackage(protocol.createErrorPackage(pkg.message));
+  this.broadcastPackage(protocol.createErrorPackage(package.message));
 };
 
-WS.Server.prototype.processRequestPackage = function(pkg, wsSocket)
+WS.Server.prototype.processRequestPackage = function(package, wsSocket)
 {
   var avatarName = "";
   var avatarImageSource = "";
   
-  var content = pkg.content; 
+  var content = package.content; 
   if(content === "jinx")
   {
     avatarImageSource = "http://orig00.deviantart.net/1eaf/f/2013/284/0/7/jinx___splat_7_by_etruzion-d6q1jes.png";
@@ -98,8 +98,8 @@ WS.Server.prototype.processRequestPackage = function(pkg, wsSocket)
     avatarImgSrc: avatarImageSource
   };
   
-  var pkg = protocol.createUpdatePackage(content);
-  this.broadcastPackage(pkg);
+  var package = protocol.createUpdatePackage(content);
+  this.broadcastPackage(package);
 };
 
 WS.Socket = function(ws, wsServer)
@@ -115,14 +115,14 @@ WS.Socket = function(ws, wsServer)
   
   wsServer.connectedClients.push(this);
   
-  var pkg = protocol.createMessagePackage("Connected as client " + this.clientId + ".");
-  wsServer.sendPackage(ws, pkg);
+  var package = protocol.createMessagePackage("Connected as client " + this.clientId + ".");
+  wsServer.sendPackage(ws, package);
 };
 
 WS.Socket.prototype.onmessage = function(data)
 {
-  var pkg = JSON.parse(data);
-  this.wsServer.processPackage(pkg, this);
+  var package = JSON.parse(data);
+  this.wsServer.processPackage(package, this);
 };
 
 WS.Socket.prototype.onclose = function()
@@ -133,8 +133,8 @@ WS.Socket.prototype.onclose = function()
   {
     wsServer.connectedClients = wsServer.connectedClients.splice(index, 1);
     
-    var pkg = protocol.createMessagePackage("Client " + this.clientId + " disconnected.");
-    wsServer.broadcastPackage(pkg, this);
+    var package = protocol.createMessagePackage("Client " + this.clientId + " disconnected.");
+    wsServer.broadcastPackage(package, this);
   }
 };
 
@@ -163,4 +163,11 @@ app.use("/js/protocol.js", express.static(commonJsPath + "/protocol.js"));
 var cssPath = path.resolve(clientPath + "/css");
 app.use("/css", express.static(cssPath));
 
-server.listen(8080);
+var port = 8080;
+
+if(process.argv.length > 2)
+{
+  port = parseInt(process.argv[2]);
+}
+
+server.listen(port);

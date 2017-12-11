@@ -35,47 +35,47 @@ WS.Client.prototype.onclose = function()
   console.log("WS.Client::onclose.");
 };
 
-WS.Client.prototype.processPackage = function(pkg)
+WS.Client.prototype.processPackage = function(package)
 {
-  var type = pkg.type;
+  var type = package.type;
   
   if(type === protocol.PackageType.MESSAGE)
   {
-    return this.processMessagePackage(pkg);
+    return this.processMessagePackage(package);
   }
   
   if(type === protocol.PackageType.UPDATE)
   {
-    return this.processUpdatePackage(pkg);
+    return this.processUpdatePackage(package);
   }
 };
 
-WS.Client.prototype.sendPackage = function(pkg)
+WS.Client.prototype.sendPackage = function(package)
 {
-  this.ws.send(JSON.stringify(pkg));
+  this.ws.send(JSON.stringify(package));
 };
 
 WS.Client.prototype.request = function()
 {
   var content = "jinx";
   
-  var pkg = protocol.createRequestPackage(content);
-  this.sendPackage(pkg);
+  var package = protocol.createRequestPackage(content);
+  this.sendPackage(package);
   
   this.addLogMessage("Requesting: " + content);
 };
 
-WS.Client.prototype.processMessagePackage = function(pkg)
+WS.Client.prototype.processMessagePackage = function(package)
 {
-  this.addLogMessage(pkg.message);
+  this.addLogMessage(package.message);
 };
 
-WS.Client.prototype.processUpdatePackage = function(pkg)
+WS.Client.prototype.processUpdatePackage = function(package)
 {
-  var avatarName = pkg.content.avatarName;
+  var avatarName = package.content.avatarName;
   
   var avatarImageElement = document.getElementById("Avatar Image");
-  avatarImageElement.src = pkg.content.avatarImgSrc;
+  avatarImageElement.src = package.content.avatarImgSrc;
   
   var avatarNameElement = document.getElementById("Avatar Name");
   avatarNameElement.innerHTML = avatarName;
